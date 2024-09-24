@@ -1,10 +1,12 @@
 package main
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/chamanbetra/user-management-app/config"
 	"github.com/chamanbetra/user-management-app/database"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -12,6 +14,11 @@ func main() {
 
 	database.Connect()
 
-	router := mux.NewRouter()
+	r := routes.router()
+
+	log.Println("Server is starting on :8080")
+	if err := http.ListenAndServe(":8080", r); err != nil {
+		log.Fatalf("Error starting server: %v", err)
+	}
 
 }
