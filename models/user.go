@@ -13,6 +13,8 @@ type User struct {
 	Email     string    `gorm:"uniqueIndex" json:"email"`
 	DOB       time.Time `json:"dob"`
 	Age       int       `json:"age" gorm:"-"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (u *User) BeforeSave(tx *gorm.DB) (err error) {
