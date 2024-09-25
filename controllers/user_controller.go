@@ -7,6 +7,7 @@ import (
 	"github.com/chamanbetra/user-management-app/models"
 	"github.com/chamanbetra/user-management-app/services"
 	"github.com/go-playground/validator"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var validate = validator.New()
@@ -14,13 +15,27 @@ var validate = validator.New()
 // BasicAuth middleware for simple authentication
 func BasicAuth(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		username, password, hasAuth := r.BasicAuth()
+		email, password, hasAuth := r.BasicAuth()
 
-		if !hasAuth || username != "admin" || password != "password" {
+		if !hasAuth {
 			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
+
+		user, err := services.GetUserByEmail(email)
+		if err != nil {
+			http.Error(w, "Unauthorized: Invalid email or password", http.StatusUnauthorized)
+			return
+		}
+
+		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+		if err != nil {
+			http.Error(w, "Unauthorized: Invalid email or password", http.StatusUnauthorized)
+			return
+		}
+
+		// Proceed to the next handler if authentication is successful
 		next.ServeHTTP(w, r)
 	})
 }
