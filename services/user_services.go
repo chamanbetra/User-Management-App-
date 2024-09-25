@@ -42,6 +42,7 @@ func UpdateUser(email string, updatedUser *models.User) error {
 	user.FirstName = updatedUser.FirstName
 	user.LastName = updatedUser.LastName
 	user.DOB = updatedUser.DOB
+	user.Email = updatedUser.Email
 
 	if err := database.DB.Save(&user).Error; err != nil {
 		return err

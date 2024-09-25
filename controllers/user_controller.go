@@ -133,7 +133,11 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		user.DOB = requestBody.DOB
 	}
 
-	if err := services.UpdateUser(email, user); err != nil {
+	if requestBody.Email != "" {
+		user.Email = requestBody.Email
+	}
+
+	if err := services.UpdateUser(current_email, user); err != nil {
 		http.Error(w, "Failed to update user", http.StatusInternalServerError)
 		return
 	}
