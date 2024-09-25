@@ -6,7 +6,10 @@ import (
 
 	"github.com/chamanbetra/user-management-app/models"
 	"github.com/chamanbetra/user-management-app/services"
+	"github.com/go-playground/validator"
 )
+
+var validate = validator.New()
 
 // BasicAuth middleware for simple authentication
 func BasicAuth(next http.HandlerFunc) http.HandlerFunc {
@@ -28,6 +31,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := validate.Struct(user); err != nil {
+		// Return validation errors
+		validationErrors := err.(validator.ValidationErrors)
+		http.Error(w, validationErrors.Error(), http.StatusBadRequest)
 		return
 	}
 

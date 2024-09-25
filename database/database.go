@@ -20,8 +20,6 @@ func Connect() {
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"))
 
-	log.Println("DSN:", dsn)
-
 	var err error
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {

@@ -4,30 +4,35 @@ import (
 	"fmt"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 type User struct {
 	ID        uint   `gorm:"primaryKey;autoIncrement" json:"id"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `gorm:"type:varchar(255);uniqueIndex" json:"email"`
-	DOB       string `json:"dob"`
+	FirstName string `json:"first_name" validate:"required"`
+	LastName  string `json:"last_name" validate:"required"`
+	Email     string `gorm:"type:varchar(255);uniqueIndex" json:"email" validate:"required,email"`
+	DOB       string `json:"dob" validate:"required"`
 	Age       int    `json:"age"`
+	Password  string `json:"password,omitempty" validate:"required,min=8"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 func (u *User) BeforeSave(tx *gorm.DB) (err error) {
 	u.Age = CalculateAge(u.DOB)
+	if err := u.hashPassword(); err != nil {
+		return err
+	}
 	return
 }
 
 func CalculateAge(dobStr string) int {
-	dob, err := time.Parse("2006-01-02", dobStr) // Change format according to the input format
+	dob, err := time.Parse("2006-01-02", dobStr)
 	if err != nil {
 		fmt.Println("Error parsing DOB:", err)
-		return 0 // Return 0 or handle the error as per your logic
+		return 0
 	}
 
 	today := time.Now()
@@ -36,4 +41,13 @@ func CalculateAge(dobStr string) int {
 		age--
 	}
 	return age
+}
+
+func (u *User) hashPassword() error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	u.Password = string(hashedPassword)
+	return nil
 }
