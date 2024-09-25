@@ -94,9 +94,15 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 // UpdateUser handles updating a user by email
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var requestBody struct {
-		Email string      `json:"email"`
-		User  models.User `json:"user"`
+		Email     string `json:"email"`
+		FirstName string `json:"first_name"`
+		LastName  string `json:"last_name"`
+		DOB       string `json:"dob"`
 	}
+
+	username, _, _ := r.BasicAuth()
+
+	current_email := username
 
 	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -109,12 +115,30 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := services.UpdateUser(email, &requestBody.User); err != nil {
+	user, err := services.GetUserByEmail(current_email)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	if requestBody.FirstName != "" {
+		user.FirstName = requestBody.FirstName
+	}
+
+	if requestBody.LastName != "" {
+		user.LastName = requestBody.LastName
+	}
+
+	if requestBody.DOB != "" {
+		user.DOB = requestBody.DOB
+	}
+
+	if err := services.UpdateUser(email, user); err != nil {
 		http.Error(w, "Failed to update user", http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(requestBody.User)
+	json.NewEncoder(w).Encode(user)
 }
 
 // DeleteUser handles deleting a user by email
