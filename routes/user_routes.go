@@ -5,7 +5,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func router() *mux.Router {
+func Router() *mux.Router {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/users", controllers.CreateUser).Methods("POST")

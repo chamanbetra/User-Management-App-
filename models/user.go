@@ -10,7 +10,7 @@ type User struct {
 	ID        uint      `gorm:"primaryKey;autoIncrement" json:"id"`
 	FirstName string    `json:"first_name"`
 	LastName  string    `json:"last_name"`
-	Email     string    `gorm:"uniqueIndex" json:"email"`
+	Email     string    `gorm:"type:varchar(255);uniqueIndex" json:"email"`
 	DOB       time.Time `json:"dob"`
 	Age       int       `json:"age" gorm:"-"`
 	CreatedAt time.Time
