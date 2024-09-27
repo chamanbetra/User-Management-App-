@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -24,7 +25,9 @@ func BasicAuth(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		user, err := services.GetUserByEmail(email)
+		ctx := context.WithValue(r.Context(), "http_request", r)
+
+		user, err := services.GetUserByEmail(ctx, email)
 		if err != nil {
 			http.Error(w, "Unauthorized: Invalid email", http.StatusUnauthorized)
 			return
@@ -57,9 +60,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(user)
+	ctx := context.WithValue(r.Context(), "http_request", r)
 
-	if err := services.CreateUser(&user); err != nil {
+	if err := services.CreateUser(ctx, &user); err != nil {
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
 		return
 	}
@@ -85,7 +88,9 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := services.GetUserByEmail(email)
+	ctx := context.WithValue(r.Context(), "http_request", r)
+
+	user, err := services.GetUserByEmail(ctx, email)
 	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
@@ -118,7 +123,9 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := services.GetUserByEmail(current_email)
+	ctx := context.WithValue(r.Context(), "http_request", r)
+
+	user, err := services.GetUserByEmail(ctx, current_email)
 	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
@@ -140,7 +147,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		user.Email = requestBody.Email
 	}
 
-	if err := services.UpdateUser(current_email, user); err != nil {
+	if err := services.UpdateUser(ctx, current_email, user); err != nil {
 		log.Println(err)
 		http.Error(w, "Failed to update user", http.StatusInternalServerError)
 		return
@@ -165,8 +172,9 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Email is required", http.StatusBadRequest)
 		return
 	}
+	ctx := context.WithValue(r.Context(), "http_request", r)
 
-	if err := services.DeleteUser(email); err != nil {
+	if err := services.DeleteUser(ctx, email); err != nil {
 		http.Error(w, "Failed to delete user", http.StatusInternalServerError)
 		return
 	}

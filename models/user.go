@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -22,10 +23,17 @@ type User struct {
 
 func (u *User) BeforeSave(tx *gorm.DB) (err error) {
 	u.Age = CalculateAge(u.DOB)
-	if err := u.hashPassword(); err != nil {
-		return err
+
+	if tx.Statement.Context != nil {
+		if r, ok := tx.Statement.Context.Value("http_request").(*http.Request); ok {
+			if r.Method == "POST" {
+				if err := u.hashPassword(); err != nil {
+					return err
+				}
+			}
+		}
 	}
-	return
+	return nil
 }
 
 func CalculateAge(dobStr string) int {
