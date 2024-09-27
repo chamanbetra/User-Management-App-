@@ -15,7 +15,7 @@ type User struct {
 	Email     string `gorm:"type:varchar(255);uniqueIndex" json:"email" validate:"required,email"`
 	DOB       string `json:"dob" validate:"required"`
 	Age       int    `json:"age"`
-	Password  string `json:"-" validate:"required,min=8"`
+	Password  string `json:"password"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

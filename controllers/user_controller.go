@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/chamanbetra/user-management-app/models"
@@ -25,13 +26,13 @@ func BasicAuth(next http.HandlerFunc) http.HandlerFunc {
 
 		user, err := services.GetUserByEmail(email)
 		if err != nil {
-			http.Error(w, "Unauthorized: Invalid email or password", http.StatusUnauthorized)
+			http.Error(w, "Unauthorized: Invalid email", http.StatusUnauthorized)
 			return
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 		if err != nil {
-			http.Error(w, "Unauthorized: Invalid email or password", http.StatusUnauthorized)
+			http.Error(w, "Unauthorized: Invalid password", http.StatusUnauthorized)
 			return
 		}
 
@@ -55,6 +56,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, validationErrors.Error(), http.StatusBadRequest)
 		return
 	}
+
+	log.Println(user)
 
 	if err := services.CreateUser(&user); err != nil {
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
@@ -138,6 +141,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := services.UpdateUser(current_email, user); err != nil {
+		log.Println(err)
 		http.Error(w, "Failed to update user", http.StatusInternalServerError)
 		return
 	}
