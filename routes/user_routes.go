@@ -13,6 +13,6 @@ func Router() *mux.Router {
 	r.HandleFunc("/user", controllers.BasicAuth(controllers.GetUser)).Methods("GET")
 	r.HandleFunc("/user", controllers.BasicAuth(controllers.UpdateUser)).Methods("PUT")
 	r.HandleFunc("/user", controllers.BasicAuth(controllers.DeleteUser)).Methods("DELETE")
-
+	r.HandleFunc("/verify", controllers.VerifyEmail).Methods("GET")
 	return r
 }

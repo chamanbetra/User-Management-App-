@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/chamanbetra/user-management-app/database"
 	"github.com/chamanbetra/user-management-app/models"
@@ -57,4 +58,36 @@ func DeleteUser(ctx context.Context, email string) error {
 		return err
 	}
 	return nil
+}
+
+func ValidateToken(ctx context.Context, token string) (string, error) {
+	var user models.User
+
+	if err := database.DB.WithContext(ctx).Where("verification_token = ?", token).First(&user).Error; err != nil {
+		return "", errors.New("invalid token")
+	}
+
+	if time.Since(user.Token_GeneratedTime) > 5*time.Minute {
+		return "", errors.New("token expired")
+	}
+
+	return user.Email, nil
+
+}
+
+func VerifyUserByEmail(ctx context.Context, email string) error {
+	var user models.User
+
+	if err := database.DB.WithContext(ctx).Where("email = ?", email).First(&user).Error; err != nil {
+		return errors.New("user not found")
+	}
+
+	user.Verified = true
+
+	if err := database.DB.WithContext(ctx).Save(&user).Error; err != nil {
+		return errors.New("failed to update user verification status")
+	}
+
+	return nil
+
 }

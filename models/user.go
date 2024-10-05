@@ -10,15 +10,18 @@ import (
 )
 
 type User struct {
-	ID        uint   `gorm:"primaryKey;autoIncrement" json:"id"`
-	FirstName string `json:"first_name" validate:"required"`
-	LastName  string `json:"last_name" validate:"required"`
-	Email     string `gorm:"type:varchar(255);uniqueIndex" json:"email" validate:"required,email"`
-	DOB       string `json:"dob" validate:"required"`
-	Age       int    `json:"age"`
-	Password  string `json:"password"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID                  uint   `gorm:"primaryKey;autoIncrement" json:"id"`
+	FirstName           string `json:"first_name" validate:"required"`
+	LastName            string `json:"last_name" validate:"required"`
+	Email               string `gorm:"type:varchar(255);uniqueIndex" json:"email" validate:"required,email"`
+	DOB                 string `json:"dob" validate:"required"`
+	Age                 int    `json:"age"`
+	Password            string `json:"password"`
+	VerificationToken   string
+	Verified            bool
+	Token_GeneratedTime time.Time
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
 }
 
 func (u *User) BeforeSave(tx *gorm.DB) (err error) {
