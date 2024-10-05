@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  golang-app:
+    build:
+      context: .
+      dockerfile: DockerFile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql-db
+    env_file:
+      - .env
+    networks:
+      - app-network
+  
+  mysql-db:
+      image: mysql/mysql-server:latest
+      environment:
+        MYSQL_ROOT_PASSWORD: rootpassword
+        MYSQL_DATABASE: users
+        MYSQL_USER: root
+        MYSQL_PASSWORD: rootpassword
+      ports:
+        - "3306:3306"
+      networks:
+        - app-network
+
+networks:
+  app-network:
+    driver: bridge
