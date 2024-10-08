@@ -8,7 +8,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - mysql-db
+      mysql-db:
+        condition: service_healthy
     env_file:
       - .env
     networks:
@@ -21,8 +22,11 @@ services:
         MYSQL_DATABASE: users
         MYSQL_USER: root
         MYSQL_PASSWORD: rootpassword
-      ports:
-        - "3307:3306"
+      healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+        interval: 10s
+        timeout: 5s
+        retries: 3
       networks:
         - app-network
 
