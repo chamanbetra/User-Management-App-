@@ -208,7 +208,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.WithValue(r.Context(), "http_request", r)
 
-	verified, err := IsUserVerified(ctx, email)
+	verified, err := IsUserVerified(ctx, current_email)
 	if err != nil || !verified {
 		http.Error(w, "User is not verified or not found", http.StatusForbidden)
 		return
